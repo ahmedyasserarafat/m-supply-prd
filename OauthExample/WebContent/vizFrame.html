@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv='X-UA-Compatible' content='IE=edge' />
+	<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'/>
+
+	<title>Mobile App with XML View with JSON Data</title>
+    
+ <script id='sap-ui-bootstrap' type='text/javascript'
+src="https://sapui5.hana.ondemand.com/resources/sap-ui-core.js" 
+   data-sap-ui-theme='sap_bluecrystal'
+   data-sap-ui-libs='sap.m'></script>
+
+ <script id="myxml" type="text/xmldata">
+   <mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="my.own.controller" 
+   xmlns:vtypes="sap.viz.ui5.types" xmlns:vdata="sap.viz.ui5.data"
+   xmlns:vizc="sap.viz.ui5.controls">
+	  <App>
+		
+		<Page id="page" title="SAPUI5 App" enableScrolling="true">
+			<Text text="Some charts for tooltip checking" />
+			
+			
+				
+				<Column xmlns="sap.viz.ui5" id="chart" width="100%" height="400px">
+					<title>
+						<vtypes:Title text = "sap.viz.ui5.Column" visible="true" />
+	                </title>
+					<xAxis>
+						<vtypes:Axis color="#ffcc00" />
+	                </xAxis>
+					
+					<plotArea>
+						<VerticalBar xmlns="sap.viz.ui5.types">
+					<animation dataLoading="false" dataUpdating="false"
+						resizing="false">
+					</animation>
+				</VerticalBar>				
+				
+	                </plotArea>
+					<dataset>
+							<FlattenedDataset xmlns="sap.viz.ui5.data" data="{/}" >
+								<dimensions>
+								    <DimensionDefinition axis="1" name="Country" value="{Country}" />
+	                            </dimensions>
+								<measures>
+									<MeasureDefinition name="Revenue" value="{revenue}" />
+								
+	                            </measures>
+	                        </FlattenedDataset>
+	                </dataset>
+	            </Column>
+				
+				<Pie xmlns="sap.viz.ui5" id="pie" width="100%" height="400px">
+					<title>
+						<vtypes:Title text = "sap.viz.ui5.Pie" visible="true" />
+	                </title>
+					
+					<plotArea>
+				       <Pie xmlns="sap.viz.ui5.types" >
+					      <animation dataLoading="false" dataUpdating="false" resizing="false">
+					      </animation>
+				        </Pie>
+			        </plotArea>
+					<dataset>
+							<FlattenedDataset xmlns="sap.viz.ui5.data" data="{/}" >
+								<dimensions>
+								    <DimensionDefinition axis="1" name="Country" value="{Country}" />
+	                            </dimensions>
+								<measures>
+									<MeasureDefinition name="Revenue" value="{revenue}" />
+								
+	                            </measures>
+	                        </FlattenedDataset>
+	                </dataset>
+	            </Pie>
+				
+				<Line xmlns="sap.viz.ui5" id="line" width="100%" height="400px">
+					<title>
+						<vtypes:Title text = "sap.viz.ui5.Line" visible="true" />
+	                </title>
+					
+					<plotArea>
+				     
+			        </plotArea>
+					<dataset>
+							<FlattenedDataset xmlns="sap.viz.ui5.data" data="{/}" >
+								<dimensions>
+								    <DimensionDefinition axis="1" name="Country" value="{Country}" />
+	                            </dimensions>
+								<measures>
+								<MeasureDefinition name="Revenue" value="{revenue}" />
+									<MeasureDefinition name="Profit" value="{profit}" />
+								
+	                            </measures>
+	                        </FlattenedDataset>
+	                </dataset>
+	            </Line>
+				
+				
+				
+				
+				
+		 </Page>
+	  </App>
+   </mvc:View>	
+  </script>
+	
+ <script>
+	
+sap.ui.controller("my.own.controller", {
+	onInit : function() {
+		var model = new sap.ui.model.json.JSONModel();
+		model.setData([{
+			Country : "Canada",
+			revenue : 410.87,
+			profit : -141.25,
+			population : 34789000
+		}, {
+			Country : "China",
+			revenue : 338.29,
+			profit : 133.82,
+			population : 1339724852
+		}, {
+			Country : "France",
+			revenue : 487.66,
+			profit : 348.76,
+			population : 65350000
+		}, {
+			Country : "Germany",
+			revenue : 470.23,
+			profit : 217.29,
+			population : 81799600
+		}, {
+			Country : "India",
+			revenue : 170.93,
+			profit : 117.00,
+			population : 1210193422
+		}, {
+			Country : "United States",
+			revenue : 905.08,
+			profit : 609.16,
+			population : 313490000
+		}]);
+
+		this.getView().setModel(model);
+
+		// somehow feeds for vizframe line didnt work declarative properly, check this
+
+		var oPage = this.getView().byId("page");
+	
+		var oVizFrame = new sap.viz.ui5.controls.VizFrame({
+			height : "400px",
+			width : "100%",
+			vizType : "info/line",
+			uiConfig : {applicationSet : "fiori"},
+		});
+		
+		
+		oVizFrame.setVizProperties({
+			plotArea : {
+
+				lineStyle : {
+					rules : [{
+						dataContext : [{
+							Revenue : "*"
+						}],
+						properties : {
+							width : 6
+						}
+					}]
+				}
+			},
+				title : {
+				visible :"true",
+				text : "VizFrame line with tooltip popover"
+				
+			}
+		});
+
+
+		
+		var oDataset = new sap.viz.ui5.data.FlattenedDataset({
+		 	dimensions: [{
+		 		name: 'Country',
+				axis : 1,
+		 		value: "{Country}"
+		 	}
+		 		],
+		 	measures: [
+		 		{
+		 			name: 'Profit', 
+						 axis : 1,
+		 			value: '{profit}' 
+		 		},{
+		 			name: 'Revenue', 
+						 axis : 1,
+		 			value: '{revenue}' 
+		 		}
+		 	],
+		 	data: {
+		 		path: "/"
+		 	}
+		 });
+		
+		oVizFrame.setDataset(oDataset);
+		oVizFrame.setModel(model);
+
+		var feedPrimaryValues = new sap.viz.ui5.controls.common.feeds.FeedItem({
+			'uid' : "primaryValues",
+			'type' : "Measure",
+			'values' : ["Revenue", "Profit"]
+		});
+
+		var feedAxisLabels = new sap.viz.ui5.controls.common.feeds.FeedItem({
+			'uid' : "axisLabels",
+			'type' : "Dimension",
+			'values' : ["Country"]
+		
+		});
+
+		oVizFrame.addFeed(feedPrimaryValues);
+		oVizFrame.addFeed(feedAxisLabels);
+			var oPopover = new sap.viz.ui5.controls.Popover({});
+			oPopover.connect(oVizFrame.getVizUid());
+		oPage.addContent(oVizFrame);
+		
+		
+		
+		// column vizframe
+		
+		var oVizFrameCol = new sap.viz.ui5.controls.VizFrame({
+			height : "400px",
+			width : "100%",
+			vizType : "info/column",
+			uiConfig : {applicationSet : "fiori"},
+		});
+		
+		
+		oVizFrameCol.setVizProperties({
+				title : {
+				visible :"true",
+				text : "VizFrame column with tooltip popover"
+				
+			}
+		});
+
+
+		
+		var oDatasetcol = new sap.viz.ui5.data.FlattenedDataset({
+		 	dimensions: [{
+		 		name: 'Country',
+				axis : 1,
+		 		value: "{Country}"
+		 	}
+		 		],
+		 	measures: [
+		 		{
+		 			name: 'Profit', 
+						 axis : 1,
+		 			value: '{profit}' 
+		 		}
+		 	],
+		 	data: {
+		 		path: "/"
+		 	}
+		 });
+		
+		oVizFrameCol.setDataset(oDatasetcol);
+		oVizFrameCol.setModel(model);
+		
+		var feedPrimaryValuesc = new sap.viz.ui5.controls.common.feeds.FeedItem({
+			'uid' : "primaryValues",
+			'type' : "Measure",
+			'values' : ["Profit"]
+		});
+
+		var feedAxisLabelsc = new sap.viz.ui5.controls.common.feeds.FeedItem({
+			'uid' : "axisLabels",
+			'type' : "Dimension",
+			'values' : ["Country"]
+		
+		});
+
+		oVizFrameCol.addFeed(feedPrimaryValuesc);
+		oVizFrameCol.addFeed(feedAxisLabelsc);
+			var oPopoverc = new sap.viz.ui5.controls.Popover({});
+			oPopoverc.connect(oVizFrameCol.getVizUid());
+		oPage.addContent(oVizFrameCol);
+		
+		
+
+	}
+});
+
+sap.ui.view({
+	viewContent : document.scripts.myxml.innerText,
+	type : sap.ui.core.mvc.ViewType.XML
+}).placeAt("content")
+	</script>
+
+</head>
+<body class='sapUiBody'>
+   <div id='content'></div>
+</body>
+</html>
